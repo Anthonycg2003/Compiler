@@ -1,4 +1,5 @@
 ﻿using System.Dynamic;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
@@ -20,8 +21,10 @@ public class LexicalAnalyzer
         const string slash=@"\A/";
         const string star=@"\A\*";
         const string dot=@"\A\.";
+        const string Caret=@"\A\^";
         const string type=@"\AType";
         const string name=@"\AName";
+        const string Effect=@"\AEffect";
         const string faction=@"\AFaction";
         const string power=@"\APower";
         const string range=@"\ARange";
@@ -44,16 +47,19 @@ public class LexicalAnalyzer
         const string TRUE=@"\Atrue";
         const string FOR=@"\Afor";
         const string WHILE=@"\Awhile";
-        const string STRING=@"\A"+"\""+@"\s*[a-zA-Z]+\s*"+"\"";
+        const string STRING=@"\A"+"\""+"[^\"]*"+"\"";
+        const string LAMBDA=@"\A=>";
         const string NUMBER=@"\A[0-9]+(\.[0-9]+)?";
         const string IDENTIFIER=@"\A[a-zA-Z]+([0-9]+)?";
         const string Unknow=@"\A[\S]+";
-
+        const string NumberType=@"\ANumber";
+        const string StringType=@"\AString";
+        const string BoolType=@"\ABool";
         #endregion
     static readonly Dictionary<string,TokenType> Regular_Expretions=new Dictionary<string, TokenType>
     {
-        {card,TokenType.CARD},{effect,TokenType.EFFECT},{faction,TokenType.FACTION},{power,TokenType.POWER},{range,TokenType.RANGE},{type,TokenType.TYPE},{Activation,TokenType.OnACTIVATION},{name,TokenType.NAME},{PARAMS,TokenType.PARAMS},{AND,TokenType.AND},{OR,TokenType.OR},{FOR,TokenType.FOR},{FALSE,TokenType.FALSE},{TRUE,TokenType.TRUE},{WHILE,TokenType.WHILE},{ACTION,TokenType.ACTION},
-        {right_parent,TokenType.RIGHT_PAREN},{left_parent,TokenType.LEFT_PAREN}, {comma,TokenType.COMMA},{minus,TokenType.MINUS},{semi_colon,TokenType.SEMICOLON},{slash,TokenType.SLASH},{star,TokenType.STAR},{dot,TokenType.DOT},{two_points,TokenType.COLON},{right_key,TokenType.RIGHT_KEY},{left_key,TokenType.LEFT_KEY},{left_bracket,TokenType.LEFT_BRACE},{right_bracket,TokenType.RIGHT_BRACE},
+        {card,TokenType.CARD},{effect,TokenType.EFFECT},{faction,TokenType.FACTION},{power,TokenType.POWER},{range,TokenType.RANGE},{type,TokenType.TYPE},{Activation,TokenType.OnACTIVATION},{name,TokenType.NAME},{PARAMS,TokenType.PARAMS},{AND,TokenType.AND},{OR,TokenType.OR},{FOR,TokenType.FOR},{FALSE,TokenType.FALSE},{TRUE,TokenType.TRUE},{WHILE,TokenType.WHILE},{ACTION,TokenType.ACTION},{Effect,TokenType.effect},{NumberType,TokenType.NumberType},{StringType,TokenType.StringType},{BoolType,TokenType.BoolType},
+        {right_parent,TokenType.RIGHT_PAREN},{left_parent,TokenType.LEFT_PAREN}, {comma,TokenType.COMMA},{minus,TokenType.MINUS},{semi_colon,TokenType.SEMICOLON},{slash,TokenType.SLASH},{star,TokenType.STAR},{dot,TokenType.DOT},{two_points,TokenType.COLON},{right_key,TokenType.RIGHT_KEY},{left_key,TokenType.LEFT_KEY},{left_bracket,TokenType.LEFT_BRACE},{right_bracket,TokenType.RIGHT_BRACE},{Caret,TokenType.Caret},{LAMBDA,TokenType.LAMBDA},
         {EQUAL_EQUAL,TokenType.EQUAL_EQUAL},{EQUAL,TokenType.EQUAL},{GREATER_EQUAL,TokenType.GREATER_EQUAL},{GREATER,TokenType.GREATER},{LESS_EQUAL,TokenType.LESS_EQUAL},{LESS,TokenType.LESS},{ARROBA_ARROBA,TokenType.ARROBA_ARROBA},{ARROBA,TokenType.ARROBA},{PLUS_PLUS,TokenType.PLUS_PLUS},{PLUS,TokenType.PLUS},
         {STRING,TokenType.STRING},{NUMBER,TokenType.NUMBER},{IDENTIFIER,TokenType.IDENTIFIER},
         {Unknow,TokenType.UNKNOW},
@@ -73,12 +79,13 @@ public class LexicalAnalyzer
         Lexer_location.column=1;
         Lexer_location.line=1;
     }
-    public IEnumerable<Token> GetTokens()
+    public List<Token> GetTokens()
     {
         while (current<end)
         {
             ScanToken(current,end);
         }
+        tokens.Add(new Token(TokenType.EOF,"null",Lexer_location));
         return tokens;
     }
     private void ScanToken(int start,int end)

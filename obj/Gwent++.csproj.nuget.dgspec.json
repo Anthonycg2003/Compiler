@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\John\\Desktop\\programacion\\Gwent++\\Gwent++.csproj": {}
+    "C:\\Users\\John\\Desktop\\programacion\\Gwent++\\Compiler\\Gwent++.csproj": {}
   },
   "projects": {
-    "C:\\Users\\John\\Desktop\\programacion\\Gwent++\\Gwent++.csproj": {
+    "C:\\Users\\John\\Desktop\\programacion\\Gwent++\\Compiler\\Gwent++.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\John\\Desktop\\programacion\\Gwent++\\Gwent++.csproj",
+        "projectUniqueName": "C:\\Users\\John\\Desktop\\programacion\\Gwent++\\Compiler\\Gwent++.csproj",
         "projectName": "Gwent++",
-        "projectPath": "C:\\Users\\John\\Desktop\\programacion\\Gwent++\\Gwent++.csproj",
+        "projectPath": "C:\\Users\\John\\Desktop\\programacion\\Gwent++\\Compiler\\Gwent++.csproj",
         "packagesPath": "C:\\Users\\John\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\John\\Desktop\\programacion\\Gwent++\\obj\\",
+        "outputPath": "C:\\Users\\John\\Desktop\\programacion\\Gwent++\\Compiler\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\John\\AppData\\Roaming\\NuGet\\NuGet.Config"

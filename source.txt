@@ -1,6 +1,27 @@
-card{
- 
-    #soda
-    Name
-
+effect
+{
+    Name:"return to deck",
+    Params:{Amount}
+    Action:()=>
+    {
+        hand=context.HandOf("opponent");
+    }    
 }
+card
+{
+    Name:"beluga",
+    Type:"Oro",
+    Faction:"Nort",
+    Power:10,
+    OnActivation
+    {
+        Effect:
+        {
+            Name:"return to deck",
+            Amount:5,
+        }
+    }
+    Range:["Melee"],
+}
+
+
