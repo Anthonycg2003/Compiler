@@ -41,14 +41,12 @@ public class AssignExpression : Expression
 }
 public class SetExpression:Expression
 {
-    public Token name;
-    public Expression callee;
     public Expression value;
-    public SetExpression(CodeLocation location,Token get,Expression callee,Expression value) : base(location)
+    public GetExpression getExpression;
+    public SetExpression(CodeLocation location,GetExpression getExpression,Expression value) : base(location)
     {
         this.value=value;
-        this.callee=callee;
-        name=get;
+        this.getExpression=getExpression;
     }
     public override object Accept(IVisitorExpression visitor)
     {

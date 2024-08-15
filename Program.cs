@@ -18,13 +18,14 @@
             {
                 SemanticAnalizer semanticAnalizer=new SemanticAnalizer(program);
                 Interpreter interpreter=semanticAnalizer.Semantic_Analizer();
-                if(semanticAnalizer.errors.Count!=0)
+                if(semanticAnalizer.errors.Count!=0 || interpreter.errors.Count!=0)
                 {
                     semanticAnalizer.Print_errors();
+                    interpreter.Print_errors();
                 }
                 else
                 {
-                    interpreter.Interpret(program);
+                    Console.WriteLine("ok");
                 }
             }
         }

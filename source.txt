@@ -2,9 +2,9 @@ effect
 {
     Name:"return to deck",
     Params:{Amount}
-    Action:()=>
+    Action:(context,targets)=>
     {
-        hand=context.HandOf("opponent");
+        hand=context.HandOf(opponent);
     }    
 }
 card
@@ -19,6 +19,12 @@ card
         {
             Name:"return to deck",
             Amount:5,
+        }
+        Selector:
+        {
+            Source:"board",
+            Single:false,
+            Predicate:(card)=>card.Name=="beluga",
         }
     }
     Range:["Melee"],

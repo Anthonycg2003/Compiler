@@ -12,7 +12,21 @@ public class Card:Stmt,GwentClass
         this.Type=Type;
         Properties=new Dictionary<string, object?>
         {
-            {"Name",Name},{"Faction",Faction},{"Type",Type.Value},{"Power",Power},{"Ranges",Ranges}
+            {"Name",Name},{"Faction",Faction},{"Power",Power},
+        };
+        Metods=new Dictionary<string, Funtion>();
+    }
+    public Card(CodeLocation location):base(location)
+    {
+        Name="";
+        Effect=null;
+        Power=null;
+        Ranges=null;
+        Faction="";
+        Type=new Token(TokenType.CARD,"",new CodeLocation());
+        Properties=new Dictionary<string, object?>
+        {
+            {"Name",Name},{"Faction",Faction},{"Power",Power},
         };
         Metods=new Dictionary<string, Funtion>();
     }
@@ -60,8 +74,10 @@ public class CallEffect:Stmt//llamada a funciones
 {
     public string effect_name;
     public Dictionary<Token,Expression> arguments;
-    public CallEffect(CodeLocation location,Dictionary<Token,Expression> arguments,string calleer) : base(location)
+    public Selector Selector;
+    public CallEffect(CodeLocation location,Dictionary<Token,Expression> arguments,string calleer,Selector selector) : base(location)
     {
+        Selector=selector;
         effect_name=calleer;
         this.arguments=arguments;
     }
@@ -73,4 +89,28 @@ public class CallEffect:Stmt//llamada a funciones
     {
         semanticAnalizer.Visit_CallEffect(this);
     }
+}
+public class Selector:Stmt//llamada a funciones
+{
+    public bool Single{get;set;}
+    public SourceType Source{get;set;}
+    public PredicateStmt predicateStmt{get;set;}
+    public Selector(CodeLocation location,bool single,SourceType source,PredicateStmt predicateStmt) : base(location)
+    {
+        Single=single;
+        Source=source;
+        this.predicateStmt=predicateStmt;
+    }
+    public override void Accept(IVisitorDeclaration visitor)
+    {
+        
+    }
+    public override void CheckSemantic(SemanticAnalizer semanticAnalizer)
+    {
+        
+    }
+}
+public enum SourceType
+{
+    board,hand,otherHand,deck,otherDeck,field,otherField
 }

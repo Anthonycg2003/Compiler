@@ -50,3 +50,25 @@ public class EmptyStmt:Stmt//;
         semanticAnalizer.Visit_DeclarationEmpty(this);
     }
 }
+public class PredicateStmt:Stmt//;
+{
+    public Expression condition;
+    public ParamsPredicate paramsPredicate;
+
+    public PredicateStmt(CodeLocation location,Expression expression,ParamsPredicate paramsPredicate) : base(location)
+    {
+        condition=expression;
+        this.paramsPredicate=paramsPredicate;
+    }
+    public override void Accept(IVisitorDeclaration visitor)
+    {
+        
+    }
+    public override void CheckSemantic(SemanticAnalizer semanticAnalizer)
+    {
+    }
+}
+public enum ParamsPredicate
+{
+    unit,card,boost,weather
+}

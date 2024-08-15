@@ -6,10 +6,7 @@ public class Scope
     public Scope()
     {
         Ranges = new List<string>();
-        Variables=new Dictionary<string, object>()
-        {
-            {"context",new Context_class()}
-        };
+        Variables=new Dictionary<string, object>();
     }
     public Scope? Parent { get; set; }
 
@@ -20,10 +17,9 @@ public class Scope
     {
         Scope child = new Scope();
         child.Parent = this;
-            
         return child;
     }
-    public Scope Ancestor(int distance)
+    /*public Scope Ancestor(int distance)
     {
         Scope scope=this;
         for(int i=0;i<distance;i++)
@@ -31,23 +27,27 @@ public class Scope
             scope=scope.Parent;
         }
         return scope;
-    }
-    public object GetAt(int distance,string name)
+    }*/
+    public object? GetValue(string name)
     {
-        return Ancestor(distance).Variables[name];
-    }
-    public object GetValue(string name)
-    {
-        return Variables[name];
-        throw new Exception("The variable "+name+" does not exist in the current context");
-        //error en tiempo de ejecucion o excepcion variable no definida
+        try
+        {
+            return Variables[name];
+        }
+        catch
+        {
+            if(Parent!=null)
+            {
+                return Parent.GetValue(name);
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
     public void Set(string name,object value)
     {
         Variables[name]=value;
-    }
-    public void SetAt(string name,object value,int distance)
-    {
-        Ancestor(distance).Set(name,value);
     }
 }
