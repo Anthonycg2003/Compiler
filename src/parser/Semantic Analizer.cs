@@ -36,7 +36,7 @@ public class SemanticAnalizer
 			GwentClass gwentClass = ReturnClass(expression.callee);
 			if (gwentClass.Get(expression.name.Value) == null)
 			{
-				errors.Add(new CompilingError(expression.name.Location, ErrorCode.Invalid, "the class not contains the property" + expression.name.Value));
+				errors.Add(new CompilingError(expression.name.Location, ErrorCode.Invalid, "the class not contains the property " + expression.name.Value));
 			}
 		}
 		catch
@@ -227,6 +227,21 @@ public class SemanticAnalizer
 		if(temp.GetType()!=typeof(bool))
 		{
 			errors.Add(new CompilingError(declaration.condition.Location, ErrorCode.Expected, "expected bool Data type in condition"));
+		}
+		foreach (Stmt stmt in declaration.body)
+		{
+			Analizer(stmt);
+		}
+		interpreter.Scope=last;
+	}
+	public void Visit_ForDeclaration(ForStmt declaration)
+	{
+		Scope last=StartScope();
+		interpreter.Define(declaration.identifier.Value,new Card(new CodeLocation()));
+		object? temp=interpreter.Scope.GetValue(declaration.ienumerable.Value);
+		if(temp==null || temp.GetType()!=typeof(PackOfCards))
+		{
+			errors.Add(new CompilingError(declaration.ienumerable.Location, ErrorCode.Expected, "expected IEnumerable Data type in for declaration"));
 		}
 		foreach (Stmt stmt in declaration.body)
 		{

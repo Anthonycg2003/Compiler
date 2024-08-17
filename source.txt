@@ -5,6 +5,10 @@ effect
     Action:(context,targets)=>
     {
         hand=context.HandOf(opponent);
+        for target in targets
+        {
+            target.Power=6;
+        }
     }    
 }
 card

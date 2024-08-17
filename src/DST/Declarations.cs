@@ -36,6 +36,26 @@ public class WhileStmt:Stmt
         semanticAnalizer.Visit_WhileDeclaration(this);
     }
 }
+public class ForStmt:Stmt
+{
+    public Token identifier;
+    public Token ienumerable;
+    public List <Stmt> body;
+    public ForStmt(Token identifier,Token ienumerable,List<Stmt> body, CodeLocation location) : base(location)
+    {
+        this.body=body;
+        this.ienumerable=ienumerable;
+        this.identifier=identifier;
+    }
+    public override void Accept(IVisitorDeclaration visitor)
+    {
+        visitor.Visit_ForDeclaration(this);
+    }
+    public override void CheckSemantic(SemanticAnalizer semanticAnalizer)
+    {
+        semanticAnalizer.Visit_ForDeclaration(this);
+    }
+}
 public class EmptyStmt:Stmt//;
 {
     public EmptyStmt(CodeLocation location) : base(location)
@@ -66,6 +86,7 @@ public class PredicateStmt:Stmt//;
     }
     public override void CheckSemantic(SemanticAnalizer semanticAnalizer)
     {
+        semanticAnalizer.Visit_Predicate(this);
     }
 }
 public enum ParamsPredicate

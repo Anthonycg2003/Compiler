@@ -223,9 +223,16 @@ public class Interpreter : IVisitorExpression, IVisitorDeclaration
     }
     public object Visit_Set(SetExpression expression)
     {
-        object Class = Evaluate(expression.getExpression);
+        object Class = Evaluate(expression.getExpression.callee);
         object value = Evaluate(expression.value);
-        ((GwentClass)Class).Properties[expression.getExpression.name.Value] = value;
+        try
+        {
+            ((GwentClass)Class).Properties[expression.getExpression.name.Value] = value;
+        }
+        catch
+        {
+
+        }
         return value;
     }
     public object? Visit_Metod(MetodExpression expression)
@@ -308,16 +315,22 @@ public class Interpreter : IVisitorExpression, IVisitorDeclaration
         Scope last = this.Scope;
         this.Scope = last.CreateChild();
         object value_condition = Evaluate(declaration.condition);
-        if (value_condition.GetType() == typeof(bool))
-        {
             while ((bool)value_condition)
             {
                 ExecuteBlock(declaration.body);
             }
-        }
-        else
+        this.Scope = last;
+    }
+    public void Visit_ForDeclaration(ForStmt declaration)
+    {
+        Scope last = this.Scope;
+        this.Scope = last.CreateChild();
+        PackOfCards pack = (PackOfCards)Scope.GetValue(declaration.ienumerable.Value);
+        string identifier=declaration.identifier.Value;
+        foreach(Card card in pack)
         {
-            errors.Add(new CompilingError(declaration.condition.Location, ErrorCode.Invalid, "The condition of while statement must be bool"));
+            Define(identifier,card);
+            ExecuteBlock(declaration.body);
         }
         this.Scope = last;
     }

@@ -468,6 +468,10 @@ class Parser
         {
             return ParseWhileStmt(peek().Location);
         }
+        if (match(TokenType.FOR))
+        {
+            return ParseForStmt(peek().Location);
+        }
         if (match(TokenType.SEMICOLON))
         {
             return new EmptyStmt(peek().Location);
@@ -493,6 +497,20 @@ class Parser
         }
         current++;
         return new WhileStmt(condition, body, location);
+    }
+    Stmt ParseForStmt(CodeLocation location)
+    {
+        Token identifier=Consume(TokenType.IDENTIFIER, "identifier expected");
+        Consume(TokenType.IN, "in keyword expected");
+        Token pack=Consume(TokenType.IDENTIFIER, "identifier expected");
+        Consume(TokenType.LEFT_KEY, "{ expected");
+        List<Stmt> body = new List<Stmt>();
+        while (peek().Type != TokenType.RIGHT_KEY)
+        {
+            body.Add(ParseStmt());
+        }
+        advance();
+        return new ForStmt(identifier,pack,body,location);
     }
     Effect ParseEffect()
     {

@@ -62,12 +62,13 @@ public class LexicalAnalyzer
         const string weather=@"\Aweather";
         const string unit=@"\Aunit";
         const string boost=@"\Aboost";
+        const string IN=@"\Ain";
         #endregion
     static readonly Dictionary<string,TokenType> Regular_Expretions=new Dictionary<string, TokenType>
     {
         {card,TokenType.CARD},{effect,TokenType.EFFECT},{faction,TokenType.FACTION},{power,TokenType.POWER},{range,TokenType.RANGE},{type,TokenType.TYPE},{Activation,TokenType.OnACTIVATION},{name,TokenType.NAME},{PARAMS,TokenType.PARAMS},{AND,TokenType.AND},{OR,TokenType.OR},{FOR,TokenType.FOR},{FALSE,TokenType.FALSE},{TRUE,TokenType.TRUE},{WHILE,TokenType.WHILE},{ACTION,TokenType.ACTION},{Effect,TokenType.effect},{NumberType,TokenType.NumberType},{StringType,TokenType.StringType},{BoolType,TokenType.BoolType},{Selector,TokenType.Selector},{Single,TokenType.Single},{Predicate,TokenType.Predicate},{Source,TokenType.Source},
         {weather,TokenType.WEATHER},{unit,TokenType.UNIT},{boost,TokenType.BOOST},
-        {right_parent,TokenType.RIGHT_PAREN},{left_parent,TokenType.LEFT_PAREN}, {comma,TokenType.COMMA},{minus,TokenType.MINUS},{semi_colon,TokenType.SEMICOLON},{slash,TokenType.SLASH},{star,TokenType.STAR},{dot,TokenType.DOT},{two_points,TokenType.COLON},{right_key,TokenType.RIGHT_KEY},{left_key,TokenType.LEFT_KEY},{left_bracket,TokenType.LEFT_BRACE},{right_bracket,TokenType.RIGHT_BRACE},{Caret,TokenType.Caret},{LAMBDA,TokenType.LAMBDA},
+        {right_parent,TokenType.RIGHT_PAREN},{IN,TokenType.IN},{left_parent,TokenType.LEFT_PAREN}, {comma,TokenType.COMMA},{minus,TokenType.MINUS},{semi_colon,TokenType.SEMICOLON},{slash,TokenType.SLASH},{star,TokenType.STAR},{dot,TokenType.DOT},{two_points,TokenType.COLON},{right_key,TokenType.RIGHT_KEY},{left_key,TokenType.LEFT_KEY},{left_bracket,TokenType.LEFT_BRACE},{right_bracket,TokenType.RIGHT_BRACE},{Caret,TokenType.Caret},{LAMBDA,TokenType.LAMBDA},
         {EQUAL_EQUAL,TokenType.EQUAL_EQUAL},{EQUAL,TokenType.EQUAL},{GREATER_EQUAL,TokenType.GREATER_EQUAL},{GREATER,TokenType.GREATER},{LESS_EQUAL,TokenType.LESS_EQUAL},{LESS,TokenType.LESS},{ARROBA_ARROBA,TokenType.ARROBA_ARROBA},{ARROBA,TokenType.ARROBA},{PLUS_PLUS,TokenType.PLUS_PLUS},{PLUS,TokenType.PLUS},
         {STRING,TokenType.STRING},{NUMBER,TokenType.NUMBER},{IDENTIFIER,TokenType.IDENTIFIER},
         {Unknow,TokenType.UNKNOW},

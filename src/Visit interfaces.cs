@@ -20,6 +20,7 @@ public interface IVisitorDeclaration
 {
     void Visit_DeclarationExpression(ExpressionStmt declaration);
     void Visit_WhileDeclaration(WhileStmt declaration);
+    void Visit_ForDeclaration(ForStmt declaration);
     void Visit_Card(Card expression);
     void Visit_Effect(Effect expression);
     void Visit_Program(ElementalProgram program);

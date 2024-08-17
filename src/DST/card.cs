@@ -20,7 +20,7 @@ public class Card:Stmt,GwentClass
     {
         Name="";
         Effect=null;
-        Power=null;
+        Power=0;
         Ranges=null;
         Faction="";
         Type=new Token(TokenType.CARD,"",new CodeLocation());
@@ -103,11 +103,10 @@ public class Selector:Stmt//llamada a funciones
     }
     public override void Accept(IVisitorDeclaration visitor)
     {
-        
     }
     public override void CheckSemantic(SemanticAnalizer semanticAnalizer)
     {
-        
+        semanticAnalizer.Visit_Selector(this);
     }
 }
 public enum SourceType
