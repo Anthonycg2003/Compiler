@@ -17,15 +17,15 @@
            else
             {
                 SemanticAnalizer semanticAnalizer=new SemanticAnalizer(program);
-                Interpreter interpreter=semanticAnalizer.Semantic_Analizer();
-                if(semanticAnalizer.errors.Count!=0 || interpreter.errors.Count!=0)
+                semanticAnalizer.Semantic_Analizer();
+                if(semanticAnalizer.errors.Count!=0)
                 {
                     semanticAnalizer.Print_errors();
-                    interpreter.Print_errors();
                 }
                 else
                 {
-                    Console.WriteLine("ok");
+                    Interpreter interpreter=new Interpreter(program);
+                    interpreter.Interpret();
                 }
             }
         }

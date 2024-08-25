@@ -16,6 +16,7 @@ public abstract class Expression:ASTNode
 {
     public Expression(CodeLocation location) : base (location) { }
     public abstract object Accept(IVisitorExpression visitor);
+    public abstract DataType dataType{get;set;}
 }
 public abstract class Stmt:ASTNode
 {

@@ -145,7 +145,7 @@ class Parser
         Token? type = null;
         List<string>? ranges = null;
         int? power = null;
-        CallEffect? effect = null;
+        List<CallEffect>? effects = null;
         Consume(TokenType.LEFT_KEY, "{ expected");
         while (!Check(TokenType.RIGHT_KEY))
         {
@@ -219,11 +219,33 @@ class Parser
                     }
                 case TokenType.OnACTIVATION:
                     {
-                        if (effect != null)
+                        if (effects != null)
                         {
                             errors.Add(new CompilingError(peek().Location, ErrorCode.Invalid, "OnActivation property has been declared"));
                         }
-                        effect = ParseCallEffect();
+                        effects=new List<CallEffect>();
+                        advance();
+                        Consume(TokenType.LEFT_KEY, "{ expected");
+                        effects.Add(ParseCallEffect());
+                        int effects_count=1;
+                        while(true)
+                        {
+                            if(peek().Type==TokenType.PostAction)
+                            {
+                                effects.Add(ParsePostAction(effects[effects_count-1].Selector));
+                                effects_count++;
+                            }
+                            else if(peek().Type==TokenType.LEFT_KEY)
+                            {
+                                effects.Add(ParsePostCallEffect(effects[effects_count-1].Selector));
+                                effects_count++;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        
                         Consume(TokenType.RIGHT_KEY, "} expected");
                         break;
                     }
@@ -234,6 +256,7 @@ class Parser
                     }
             }
         }
+        #region much text
         Consume(TokenType.RIGHT_KEY, "} expected");
         if (name == null)
         {
@@ -250,7 +273,8 @@ class Parser
             errors.Add(new CompilingError(location, ErrorCode.Expected, "card type expected"));
             type = new Token(TokenType.UNKNOW, "", new CodeLocation());
         }
-        return new Card(location, name, faction, type, ranges, power, effect);
+        #endregion
+        return new Card(location, name, faction, type, ranges, power, effects);
     }
     #region CardProperties
     string ParseFaction()
@@ -284,13 +308,14 @@ class Parser
     CallEffect ParseCallEffect()
     {
         CodeLocation codeLocation = peek().Location;
-        advance();
-        Consume(TokenType.LEFT_KEY, "{ expected");
         Consume(TokenType.effect, "keyword Effect expected");
         Consume(TokenType.COLON, ": expected");
         Consume(TokenType.LEFT_KEY, "{ expected");
-        Consume(TokenType.NAME, "Name expected");
-        Consume(TokenType.COLON, ": expected");
+        if(peek().Type!=TokenType.STRING)
+        {
+            Consume(TokenType.NAME, "Name expected");
+            Consume(TokenType.COLON, ": expected");
+        }
         Token effect_name = Consume(TokenType.STRING, "valid string expected");
         Consume(TokenType.COMMA, ", expected");
         Dictionary<Token, Expression> arguments = new Dictionary<Token, Expression>();
@@ -305,6 +330,33 @@ class Parser
         }
         Consume(TokenType.RIGHT_KEY, "} expected");
         return new CallEffect(codeLocation, arguments, effect_name.Value, ParseSelector());
+    }
+    CallEffect ParsePostCallEffect(Selector father)
+    {
+        CodeLocation codeLocation = peek().Location;
+        advance();
+        Consume(TokenType.effect, "keyword Effect expected");
+        Consume(TokenType.COLON, ": expected");
+        if(peek().Type!=TokenType.STRING)
+        {
+            Consume(TokenType.LEFT_KEY, "{ expected");
+            Consume(TokenType.NAME, "Name expected");
+            Consume(TokenType.COLON, ": expected");
+        }
+        Token effect_name = Consume(TokenType.STRING, "valid string expected");
+        Consume(TokenType.COMMA, ", expected");
+        Dictionary<Token, Expression> arguments = new Dictionary<Token, Expression>();
+        while (Check(TokenType.IDENTIFIER))
+        {
+            Token param = peek();
+            current++;
+            Consume(TokenType.COLON, ": expected");
+            Expression expression = ParseExpression();
+            arguments.Add(param, expression);
+            Consume(TokenType.COMMA, ", expected");
+        }
+        Consume(TokenType.RIGHT_KEY, "} expected");
+        return new CallEffect(codeLocation, arguments, effect_name.Value, father);
     }
     Selector ParseSelector()
     {
@@ -400,6 +452,148 @@ class Parser
 
             }
         }
+        Consume(TokenType.RIGHT_KEY, "} expected");
+        if (single == null)
+        {
+            single = false;
+        }
+        if (source == null)
+        {
+            source = SourceType.board;//something
+            errors.Add(new CompilingError(Keyword_Selector.Location, ErrorCode.Expected, "source in selector expected"));
+        }
+        if(predicateStmt==null)
+        {
+            predicateStmt=new PredicateStmt(Keyword_Selector.Location,new Atom("",peek().Location),ParamsPredicate.card);
+            errors.Add(new CompilingError(Keyword_Selector.Location, ErrorCode.Expected, "predicate in selector expected"));
+        }
+        return new Selector(Keyword_Selector.Location, (bool)single, (SourceType)source, predicateStmt);
+    }
+    CallEffect ParsePostAction(Selector father)
+    {
+        CodeLocation codeLocation = peek().Location;
+        advance();
+        Consume(TokenType.COLON, ": expected");
+        Consume(TokenType.LEFT_KEY, "{ expected");
+        Consume(TokenType.TYPE, "keyword Type expected");
+        Consume(TokenType.COLON, ": expected");
+        Token effect_name = Consume(TokenType.STRING, "valid string expected");
+        Consume(TokenType.COMMA, ", expected");
+        Dictionary<Token, Expression> arguments = new Dictionary<Token, Expression>();
+        /*while (Check(TokenType.IDENTIFIER))
+        {
+            Token param = peek();
+            current++;
+            Consume(TokenType.COLON, ": expected");
+            Expression expression = ParseExpression();
+            arguments.Add(param, expression);
+            Consume(TokenType.COMMA, ", expected");
+        }
+        */
+        if(peek().Type==TokenType.Selector)
+        {
+            return new CallEffect(codeLocation, arguments, effect_name.Value, ParsePostSelector());
+        }
+        return new CallEffect(codeLocation, arguments, effect_name.Value, father);
+    }
+    Selector ParsePostSelector()
+    {
+        bool? single = null;
+        SourceType? source = null;
+        PredicateStmt? predicateStmt = null;
+        Token Keyword_Selector = Consume(TokenType.Selector, "selector keyword expected");
+        Consume(TokenType.COLON, ": expected");
+        Consume(TokenType.LEFT_KEY, "{ expected");
+        while (!Check(TokenType.RIGHT_KEY))
+        {
+            switch (peek().Type)
+            {
+                case TokenType.Single:
+                    advance();
+                    Consume(TokenType.COLON,": expected");
+                    if (single != null)
+                    {
+                        errors.Add(new CompilingError(peek().Location, ErrorCode.Invalid, "Single property has been declared"));
+                    }
+                    if (Check(TokenType.TRUE))
+                    {
+                        single = true;
+                        advance();
+                    }
+                    else if (Check(TokenType.FALSE))
+                    {
+                        single = false;
+                        advance();
+                    }
+                    else
+                    {
+                        Consume("bool expected");
+                    }
+                    Consume(TokenType.COMMA, ", expected");
+                    break;
+                case TokenType.Source:
+                    advance();
+                    if (source != null)
+                    {
+                        errors.Add(new CompilingError(peek().Location, ErrorCode.Invalid, "Source property has been declared"));
+                    }
+                    Consume(TokenType.COLON,": expected");
+                    if (Check(TokenType.STRING))
+                    {
+                        Token String = advance();
+                        switch (String.Value)
+                        {
+                            case "\"board\"":
+                                source = SourceType.board;
+                                break;
+                            case "\"hand\"":
+                                source = SourceType.hand;
+                                break;
+                            case "\"otherHand\"":
+                                source = SourceType.otherHand;
+                                break;
+                            case "\"deck\"":
+                                source = SourceType.deck;
+                                break;
+                            case "\"otherDeck\"":
+                                source = SourceType.otherDeck;
+                                break;
+                            case "\"field\"":
+                                source = SourceType.field;
+                                break;
+                            case "\"otherField\"":
+                                source = SourceType.otherField;
+                                break;
+                            case "\"parent\"":
+                                source = SourceType.parent;
+                                break;
+                            default:
+                                errors.Add(new CompilingError(String.Location, ErrorCode.Expected, " valid source expected"));
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        Consume("string expected");
+                    }
+                    Consume(TokenType.COMMA, ", expected");
+                    break;
+                case TokenType.Predicate:
+                    advance();
+                    if (predicateStmt != null)
+                    {
+                        errors.Add(new CompilingError(peek().Location, ErrorCode.Invalid, "Predicate property has been declared"));
+                    }
+                    Consume(TokenType.COLON, ": expected");
+                    predicateStmt = ParsePredicate();
+                    break;
+                default:
+                    Consume("Selector property expected");
+                    break;
+
+            }
+        }
+        Consume(TokenType.RIGHT_KEY, "} expected");
         Consume(TokenType.RIGHT_KEY, "} expected");
         if (single == null)
         {
@@ -516,7 +710,7 @@ class Parser
     {
         CodeLocation codeLocation = peek().Location;
         string? name = null;
-        List<Token> Params = new List<Token>();
+        Dictionary<Token,DataType> Params = new Dictionary<Token, DataType>();
         List<Stmt>? body = null;
         Consume(TokenType.LEFT_KEY, "{ expected");
         while (!Check(TokenType.RIGHT_KEY))
@@ -572,9 +766,25 @@ class Parser
                         {
                             if (!match(TokenType.RIGHT_KEY))
                             {
-                                Params.Add(Consume(TokenType.IDENTIFIER, "Identifier in param expected"));
-                                //Consume(TokenType.COLON,": expected after param identifier");
-                                //consumir tipo
+                                Token identifier=Consume(TokenType.IDENTIFIER, "Identifier in param expected");
+                                Params.Add(identifier,DataType.Null);
+                                if(!Check(TokenType.COMMA)&&!Check(TokenType.RIGHT_KEY))
+                                {
+                                    Consume(TokenType.COLON,": expected after param identifier");
+                                    Token Type=Consume("type expected after param identifier",TokenType.NumberType,TokenType.BoolType,TokenType.StringType);
+                                    switch(Type.Type)
+                                    {
+                                        case TokenType.NumberType:
+                                        Params[identifier]=DataType.Number;
+                                        break;
+                                        case TokenType.StringType:
+                                        Params[identifier]=DataType.String;
+                                        break;
+                                        case TokenType.BoolType:
+                                        Params[identifier]=DataType.Bool;
+                                        break;
+                                    }
+                                }
                             }
                         }
                         while (match(TokenType.COMMA));
@@ -669,11 +879,26 @@ class Parser
     Expression ParseTerm(CodeLocation Location)
     {
         Expression expr = ParseFactor(Location);
-        if (match(TokenType.PLUS) || match(TokenType.MINUS))
+        if (match(TokenType.PLUS) || match(TokenType.MINUS)||match(TokenType.ARROBA)||match(TokenType.ARROBA_ARROBA))
         {
             Token tokenOperator = previus();
             Expression right = ParseFactor(Location);
             expr = new BinaryExpression(Location, expr, tokenOperator, right);
+        }
+        if (match(TokenType.PLUS_PLUS))
+        {
+            if (expr.GetType() == typeof(Variable))
+            {
+                Expression right = new BinaryExpression(Location,expr,new Token(TokenType.PLUS,"+",previus().Location),new Atom((double)1,new CodeLocation()));
+                return new AssignExpression(Location, ((Variable)expr), right);
+            }
+            if (expr.GetType() == typeof(GetExpression))
+            {
+                Expression right = new BinaryExpression(Location,expr,new Token(TokenType.PLUS,"+",previus().Location),new Atom((double)1,new CodeLocation()));
+                GetExpression Get = (GetExpression)expr;
+                return new SetExpression(Location, Get, right);
+            }
+            errors.Add(new CompilingError(Location, ErrorCode.Invalid, "Invalid assignment target"));
         }
         return expr;
     }

@@ -2,34 +2,35 @@
 using System.Reflection.Metadata.Ecma335;
 public class Card:Stmt,GwentClass
 {
-    public Card(CodeLocation location,string Name,string Faction,Token Type,List<string>? Ranges,int? Power,CallEffect? funtion):base(location)
+    public Card(CodeLocation location,string Name,string Faction,Token Type,List<string>? Ranges,int? Power,List<CallEffect>? funtion):base(location)
     {
         this.Name=Name;
-        Effect=funtion;
+        Effects=funtion;
         this.Power=Power;
         this.Ranges=Ranges;
         this.Faction=Faction;
         this.Type=Type;
         Properties=new Dictionary<string, object?>
         {
-            {"Name",Name},{"Faction",Faction},{"Power",Power},
+            {"Name",Name},{"Faction",Faction},{"Power",Power},{"Owner",Player.none}
         };
         Metods=new Dictionary<string, Funtion>();
     }
     public Card(CodeLocation location):base(location)
     {
         Name="";
-        Effect=null;
+        Effects=null;
         Power=0;
         Ranges=null;
         Faction="";
         Type=new Token(TokenType.CARD,"",new CodeLocation());
         Properties=new Dictionary<string, object?>
         {
-            {"Name",Name},{"Faction",Faction},{"Power",Power},
+            {"Name",Name},{"Faction",Faction},{"Power",Power},{"Owner",Player.none}
         };
         Metods=new Dictionary<string, Funtion>();
     }
+    public DataType dataType{get{return DataType.Card;}}
     public Dictionary<string,Funtion> Metods{get;set;}
     public Dictionary<string,object?> Properties{get;set;}
     public string name{get{return "card";}}
@@ -38,7 +39,7 @@ public class Card:Stmt,GwentClass
     public Token Type { get; set; }
     public List<string>? Ranges{get;set;}
     public int? Power { get; set; }
-    public CallEffect? Effect;
+    public List<CallEffect>? Effects;
     public override void Accept(IVisitorDeclaration visitor)
     {
         visitor.Visit_Card(this);
@@ -111,5 +112,5 @@ public class Selector:Stmt//llamada a funciones
 }
 public enum SourceType
 {
-    board,hand,otherHand,deck,otherDeck,field,otherField
+    board,hand,otherHand,deck,otherDeck,field,otherField,parent
 }

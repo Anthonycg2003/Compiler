@@ -8,22 +8,19 @@ public class Interpreter : IVisitorExpression, IVisitorDeclaration
 {
     public Scope Scope;
     public List<CompilingError> errors;
-    public Dictionary<Expression, int> locals;
     ElementalProgram Program;
     public Interpreter(ElementalProgram elementalProgram)
     {
         Program = elementalProgram;
         Scope = new Scope();
         errors = new List<CompilingError>();
-        locals = new Dictionary<Expression, int>();
-        foreach(Card card in elementalProgram.Cards.Values)
-        {
-            Context_class.Board.Push(card);
-        }
         Define("context",new Context_class());
-		Define("targets",new PackOfCards());
         Define("player",Player.player);
         Define("opponent",Player.opponent);
+        foreach(Card card in elementalProgram.Cards.Values)
+        {
+            Context_class.DeckOfPlayer.AddCard(card);
+        }
     }
     #region Expressions
     public Object Visit_Atom(Atom expression)
@@ -38,171 +35,68 @@ public class Interpreter : IVisitorExpression, IVisitorDeclaration
         {
             case TokenType.MINUS:
                 {
-                    try
-                    {
-                        return (double)left - (double)right;
-                    }
-                    catch
-                    {
-                        errors.Add(new CompilingError(expression.Location, ErrorCode.Invalid, "Both operands must be numbers"));
-                        break;
-                    }
+                    return Convert.ToDouble(left) - Convert.ToDouble(right);
+                    
                 }
             case TokenType.PLUS:
                 {
-                    try
-                    {
-                        return (double)left + (double)right;
-                    }
-                    catch
-                    {
-                        errors.Add(new CompilingError(expression.Location, ErrorCode.Invalid, "Both operands must be numbers"));
-                        break;
-                    }
+                    return Convert.ToDouble(left) + Convert.ToDouble(right);
+                    
                 }
             case TokenType.STAR:
                 {
-                    try
-                    {
-                        return (double)left * (double)right;
-                    }
-                    catch
-                    {
-                        errors.Add(new CompilingError(expression.Location, ErrorCode.Invalid, "Both operands must be numbers"));
-                        break;
-                    }
+                    return Convert.ToDouble(left) * Convert.ToDouble(right);
+                    
                 }
             case TokenType.SLASH:
                 {
-                    try
-                    {
-                        return (double)left / (double)right;
-                    }
-                    catch
-                    {
-                        errors.Add(new CompilingError(expression.Location, ErrorCode.Invalid, "Both operands must be numbers"));
-                        break;
-                    }
+                    return Convert.ToDouble(left) / Convert.ToDouble(right);
+                    
                 }
             case TokenType.GREATER:
                 {
-                    try
-                    {
-                        return (double)left > (double)right;
-                    }
-                    catch
-                    {
-                        errors.Add(new CompilingError(expression.Location, ErrorCode.Invalid, "Both operands must be numbers"));
-                        break;
-                    }
+                    return Convert.ToDouble(left) > Convert.ToDouble(right);
+                    
                 }
             case TokenType.GREATER_EQUAL:
                 {
-                    try
-                    {
-                        return (double)left >= (double)right;
-                    }
-                    catch
-                    {
-                        errors.Add(new CompilingError(expression.Location, ErrorCode.Invalid, "Both operands must be numbers"));
-                        break;
-                    }
+                    return Convert.ToDouble(left) >= Convert.ToDouble(right);
                 }
             case TokenType.LESS:
                 {
-                    try
-                    {
-                        return (double)left < (double)right;
-                    }
-                    catch
-                    {
-                        errors.Add(new CompilingError(expression.Location, ErrorCode.Invalid, "Both operands must be numbers"));
-                        break;
-                    }
+                    return Convert.ToDouble(left) < Convert.ToDouble(right);
+                    
                 }
             case TokenType.LESS_EQUAL:
                 {
-                    try
-                    {
-                        return (double)left <= (double)right;
-                    }
-                    catch
-                    {
-                        errors.Add(new CompilingError(expression.Location, ErrorCode.Invalid, "Both operands must be numbers"));
-                        break;
-                    }
+                    return Convert.ToDouble(left) <= Convert.ToDouble(right);
+                    
                 }
             case TokenType.EQUAL_EQUAL:
                 {
-                    try
-                    {
-                        return left.Equals(right);
-                    }
-                    catch
-                    {
-                        errors.Add(new CompilingError(expression.Location, ErrorCode.Invalid, "Both operands must be of the same type"));
-                        break;
-                    }
+                    return left.Equals(right);
+                    
                 }
             case TokenType.Caret:
                 {
-                    try
-                    {
-                        return Math.Pow((double)left, (double)right);
-                    }
-                    catch
-                    {
-                        errors.Add(new CompilingError(expression.Location, ErrorCode.Invalid, "Both operands must be numbers"));
-                        break;
-                    }
+                    return Math.Pow( Convert.ToDouble(left),Convert.ToDouble(right));
+                    
                 }
             case TokenType.AND:
                 {
-                    try
-                    {
-                        return (bool)left && (bool)right;
-                    }
-                    catch
-                    {
-                        errors.Add(new CompilingError(expression.Location, ErrorCode.Invalid, "Both operands must be booleans"));
-                        break;
-                    }
+                    return (bool)left && (bool)right;
                 }
             case TokenType.OR:
                 {
-                    try
-                    {
-                        return (bool)left || (bool)right;
-                    }
-                    catch
-                    {
-                        errors.Add(new CompilingError(expression.Location, ErrorCode.Invalid, "Both operands must be booleans"));
-                        break;
-                    }
+                    return (bool)left || (bool)right;
                 }
             case TokenType.ARROBA:
                 {
-                    try
-                    {
-                        return (string)left + (string)right;
-                    }
-                    catch
-                    {
-                        errors.Add(new CompilingError(expression.Location, ErrorCode.Invalid, "Both operands must be strings"));
-                        break;
-                    }
+                    return (string)left + (string)right;
                 }
             case TokenType.ARROBA_ARROBA:
                 {
-                    try
-                    {
-                        return (string)left + " " + (string)right;
-                    }
-                    catch
-                    {
-                        errors.Add(new CompilingError(expression.Location, ErrorCode.Invalid, "Both operands must be strings"));
-                        break;
-                    }
+                    return (string)left + " " + (string)right;
                 }
         }
         return null;
@@ -225,42 +119,19 @@ public class Interpreter : IVisitorExpression, IVisitorDeclaration
     {
         object Class = Evaluate(expression.getExpression.callee);
         object value = Evaluate(expression.value);
-        try
-        {
-            ((GwentClass)Class).Properties[expression.getExpression.name.Value] = value;
-        }
-        catch
-        {
-
-        }
+        ((GwentClass)Class).Properties[expression.getExpression.name.Value] = value;
         return value;
     }
     public object? Visit_Metod(MetodExpression expression)
     {
         object Class = Evaluate(expression.callee);
         Funtion funtion = ((GwentClass)Class).FindMetod(expression.name.Value);
-        try
+        List<object> arguments = new List<object>();
+        foreach (Expression expr in expression.arguments)
         {
-            object[] arguments = new object[funtion.Arity];
-            int count = 0;
-            foreach (Expression expr in expression.arguments)
-            {
-                arguments[count] = Evaluate(expr);
-                count++;
-            }
-            return funtion.Delegate.Method.Invoke(null, arguments);
+            arguments.Add(Evaluate(expr));
         }
-        catch
-        {
-            ParameterInfo[] ParamsType = funtion.Delegate.Method.GetParameters();
-            string s = "";
-            foreach (ParameterInfo parameterInfo in ParamsType)
-            {
-                s += parameterInfo.Name + " ";
-            }
-            errors.Add(new CompilingError(expression.Location, ErrorCode.Invalid, "the metod " + funtion.name + " should have a argument type " + s));
-            return null;
-        }
+        return funtion.Call(Class,arguments);
     }
     public void Visit_CallEffect(CallEffect expression)
     {
@@ -269,10 +140,9 @@ public class Interpreter : IVisitorExpression, IVisitorDeclaration
         Effect calleer = Program.Effects[expression.effect_name];
         foreach (KeyValuePair<Token, Expression> keyValuePair in expression.arguments)
         {
-            Scope.Variables[keyValuePair.Key.Value] = Evaluate(keyValuePair.Value);
+            Define(keyValuePair.Key.Value, Evaluate(keyValuePair.Value));
         }
-        Scope.Variables["context"] = new Context_class();
-        Scope.Variables["targets"] = new PackOfCards(expression,this);
+        Define("targets", new PackOfCards(expression,this));
         foreach (Stmt stmt in calleer.body)
         {
             Execute(stmt);
@@ -291,7 +161,7 @@ public class Interpreter : IVisitorExpression, IVisitorDeclaration
     public object Visit_Assign(AssignExpression expression)
     {
         object value = Evaluate(expression.Right);
-        Scope.Variables[expression.variable.name] = value;
+        Define(expression.variable.name,value);
         return value;
     }
 
@@ -359,13 +229,16 @@ public class Interpreter : IVisitorExpression, IVisitorDeclaration
             Execute(stmt);
         }
     }
-    public void Interpret(ElementalProgram elementalProgram)
+    public void Interpret()
     {
-        foreach (Card card in elementalProgram.Cards.Values)
+        foreach (Card card in Program.Cards.Values)
         {
-            if (card.Effect != null)
+            if (card.Effects != null)
             {
-                Execute(card.Effect);
+                foreach(CallEffect effect in card.Effects)
+                {
+                    Execute(effect);
+                }
             }
 
         }

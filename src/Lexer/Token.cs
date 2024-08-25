@@ -48,7 +48,7 @@ public enum TokenType
   IDENTIFIER, STRING, NUMBER,UNKNOW,
   // Keywords.
   AND, FALSE, FOR,IN, OR, TRUE, WHILE,CARD,EFFECT,NAME,PARAMS,ACTION,TYPE,FACTION,POWER,RANGE,OnACTIVATION,effect,NumberType,StringType,BoolType,UNIT,BOOST,WEATHER,
-  Selector,Source,Single,Predicate,
+  Selector,Source,Single,Predicate,PostAction,
   //End 
   EOF
 }
